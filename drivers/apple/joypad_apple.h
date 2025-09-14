@@ -1,5 +1,5 @@
 /**************************************************************************/
-/*  joypad_sdl.h                                                          */
+/*  joypad_apple.h                                                        */
 /**************************************************************************/
 /*                         This file is part of:                          */
 /*                             GODOT ENGINE                               */
@@ -31,39 +31,50 @@
 #pragma once
 
 #include "core/input/input.h"
-#include "core/os/thread.h"
+#include "core/input/input_enums.h"
 
-typedef uint32_t SDL_JoystickID;
-typedef struct HWND__ *HWND;
+#define Key _QKey
+#import <GameController/GameController.h>
+#undef Key
 
-class JoypadSDL {
-public:
-	JoypadSDL();
-#ifdef WINDOWS_ENABLED
-	JoypadSDL(HWND p_helper_window);
-#endif
-	~JoypadSDL();
+@class GCController;
+class RumbleContext;
 
-	static JoypadSDL *get_singleton();
+struct GameController {
+	int joy_id;
+	GCController *controller;
+	RumbleContext *rumble_context API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0)) = nil;
+	NSInteger ff_effect_timestamp = 0;
+	bool force_feedback = false;
+	bool double_nintendo_joycon_layout = false;
+	bool single_nintendo_joycon_layout = false;
 
-	Error initialize();
-	void process_events();
+	uint32_t axis_changed_mask = 0;
+	static_assert(static_cast<uint32_t>(JoyAxis::MAX) < 32, "JoyAxis::MAX must be less than 32");
+	double axis_value[(int)JoyAxis::MAX];
 
+	GameController(int p_joy_id, GCController *p_controller);
+	~GameController();
+};
+
+class JoypadApple {
 private:
-	struct Joypad {
-		bool attached = false;
-		StringName guid;
+	id<NSObject> connect_observer = nil;
+	id<NSObject> disconnect_observer = nil;
+	HashMap<int, GameController *> joypads;
+	HashMap<GCController *, int> controller_to_joy_id;
 
-		SDL_JoystickID sdl_instance_idx;
+	GCControllerPlayerIndex get_free_player_index();
 
-		bool supports_force_feedback = false;
-		uint64_t ff_effect_timestamp = 0;
-	};
+	void add_joypad(GCController *p_controller);
+	void remove_joypad(GCController *p_controller);
 
-	static JoypadSDL *singleton;
+public:
+	JoypadApple();
+	~JoypadApple();
 
-	Joypad joypads[Input::JOYPADS_MAX];
-	HashMap<SDL_JoystickID, int> sdl_instance_id_to_joypad_id;
+	void joypad_vibration_start(GameController &p_joypad, float p_weak_magnitude, float p_strong_magnitude, float p_duration, uint64_t p_timestamp) API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0));
+	void joypad_vibration_stop(GameController &p_joypad, uint64_t p_timestamp) API_AVAILABLE(macos(11.0), ios(14.0), tvos(14.0));
 
-	void close_joypad(int p_pad_idx);
+	void process_joypads();
 };

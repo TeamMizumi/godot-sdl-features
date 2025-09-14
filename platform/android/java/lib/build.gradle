@@ -79,7 +79,7 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src', '../../../../thirdparty/sdl/android-files']
+            java.srcDirs = ['src']
             test.java.srcDirs = ['srcTest/java']
             res.srcDirs = ['res']
             aidl.srcDirs = ['aidl']

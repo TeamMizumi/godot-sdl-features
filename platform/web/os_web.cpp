@@ -38,9 +38,6 @@
 
 #include "core/config/project_settings.h"
 #include "core/debugger/engine_debugger.h"
-#ifdef SDL_ENABLED
-#include "drivers/sdl/joypad_sdl.h"
-#endif
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
 #include "main/main.h"
@@ -87,11 +84,6 @@ bool OS_Web::main_loop_iterate() {
 	}
 
 	DisplayServer::get_singleton()->process_events();
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		joypad_sdl->process_events();
-	}
-#endif
 
 	return Main::iteration();
 }
@@ -109,12 +101,6 @@ void OS_Web::finalize() {
 		memdelete(driver);
 	}
 	audio_drivers.clear();
-
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		memdelete(joypad_sdl);
-	}
-#endif
 }
 
 // Miscellaneous
@@ -304,9 +290,6 @@ OS_Web *OS_Web::get_singleton() {
 }
 
 void OS_Web::initialize_joypads() {
-#ifdef SDL_ENABLED
-	SETUP_JOYPAD_SDL;
-#endif
 }
 
 OS_Web::OS_Web() {

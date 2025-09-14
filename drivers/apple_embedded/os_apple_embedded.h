@@ -34,6 +34,7 @@
 
 #import "apple_embedded.h"
 
+#import "drivers/apple/joypad_apple.h"
 #import "drivers/coreaudio/audio_driver_coreaudio.h"
 #include "drivers/unix/os_unix.h"
 #include "servers/audio_server.h"
@@ -47,8 +48,6 @@
 #endif
 #endif
 
-class JoypadSDL;
-
 class OS_AppleEmbedded : public OS_Unix {
 private:
 	static HashMap<String, void *> dynamic_symbol_lookup_table;
@@ -58,9 +57,7 @@ private:
 
 	AppleEmbedded *apple_embedded = nullptr;
 
-#ifdef SDL_ENABLED
-	JoypadSDL *joypad_sdl = nullptr;
-#endif
+	JoypadApple *joypad_apple = nullptr;
 
 	MainLoop *main_loop = nullptr;
 

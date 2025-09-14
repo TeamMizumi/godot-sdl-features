@@ -41,9 +41,6 @@
 #include "core/config/project_settings.h"
 #include "core/extension/gdextension_manager.h"
 #include "core/io/xml_parser.h"
-#ifdef SDL_ENABLED
-#include "drivers/sdl/joypad_sdl.h"
-#endif
 #include "drivers/unix/dir_access_unix.h"
 #include "drivers/unix/file_access_unix.h"
 #ifdef TOOLS_ENABLED
@@ -125,9 +122,9 @@ void OS_Android::initialize() {
 }
 
 void OS_Android::initialize_joypads() {
-#ifdef SDL_ENABLED
-	SETUP_JOYPAD_SDL;
-#endif
+	Input::get_singleton()->set_fallback_mapping(godot_java->get_input_fallback_mapping());
+
+	// This queries/updates the currently connected devices/joypads.
 	godot_java->init_input_devices();
 }
 
@@ -143,11 +140,6 @@ void OS_Android::delete_main_loop() {
 }
 
 void OS_Android::finalize() {
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		memdelete(joypad_sdl);
-	}
-#endif
 }
 
 OS_Android *OS_Android::get_singleton() {
@@ -368,11 +360,6 @@ bool OS_Android::main_loop_iterate(bool *r_should_swap_buffers) {
 	}
 	DisplayServerAndroid::get_singleton()->reset_swap_buffers_flag();
 	DisplayServerAndroid::get_singleton()->process_events();
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		joypad_sdl->process_events();
-	}
-#endif
 	uint64_t current_frames_drawn = Engine::get_singleton()->get_frames_drawn();
 	bool exit = Main::iteration();
 

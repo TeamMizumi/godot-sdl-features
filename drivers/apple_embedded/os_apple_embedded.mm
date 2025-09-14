@@ -41,9 +41,6 @@
 #include "core/io/dir_access.h"
 #include "core/io/file_access.h"
 #import "drivers/apple/os_log_logger.h"
-#ifdef SDL_ENABLED
-#include "drivers/sdl/joypad_sdl.h"
-#endif
 #include "main/main.h"
 
 #import <AVFoundation/AVFAudio.h>
@@ -167,9 +164,7 @@ void OS_AppleEmbedded::initialize() {
 }
 
 void OS_AppleEmbedded::initialize_joypads() {
-#ifdef SDL_ENABLED
-	SETUP_JOYPAD_SDL;
-#endif
+	joypad_apple = memnew(JoypadApple);
 }
 
 void OS_AppleEmbedded::initialize_modules() {
@@ -178,11 +173,9 @@ void OS_AppleEmbedded::initialize_modules() {
 }
 
 void OS_AppleEmbedded::deinitialize_modules() {
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		memdelete(joypad_sdl);
+	if (joypad_apple) {
+		memdelete(joypad_apple);
 	}
-#endif
 
 	if (apple_embedded) {
 		memdelete(apple_embedded);
@@ -215,11 +208,7 @@ bool OS_AppleEmbedded::iterate() {
 		DisplayServer::get_singleton()->process_events();
 	}
 
-#ifdef SDL_ENABLED
-	if (joypad_sdl) {
-		joypad_sdl->process_events();
-	}
-#endif
+	joypad_apple->process_joypads();
 
 	return Main::iteration();
 }
