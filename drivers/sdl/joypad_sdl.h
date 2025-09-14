@@ -53,6 +53,8 @@ public:
 
 	bool enable_accelerometer(int p_pad_idx, bool p_enable);
 	bool enable_gyroscope(int p_pad_idx, bool p_enable);
+    
+    void setup_sdl_helper_window(HWND p_hwnd);
 
 	bool set_light(int p_pad_idx, Color p_color);
 

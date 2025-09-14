@@ -72,6 +72,17 @@ JoypadSDL::JoypadSDL(HWND p_helper_window) :
 }
 #endif
 
+#ifdef WINDOWS_ENABLED
+// extern "C" {
+// HWND SDL_HelperWindow;
+// }
+
+// Required for DInput joypads to work
+void JoypadSDL::setup_sdl_helper_window(HWND p_hwnd) {
+	SDL_HelperWindow = p_hwnd;
+}
+#endif
+
 JoypadSDL::~JoypadSDL() {
 	// Process any remaining input events
 	process_events();
@@ -327,16 +338,6 @@ void JoypadSDL::process_events() {
 	}
 }
 
-#ifdef WINDOWS_ENABLED
-extern "C" {
-HWND SDL_HelperWindow;
-}
-
-// Required for DInput joypads to work
-void JoypadSDL::setup_sdl_helper_window(HWND p_hwnd) {
-	SDL_HelperWindow = p_hwnd;
-}
-#endif
 
 bool JoypadSDL::enable_accelerometer(int p_pad_idx, bool p_enable) {
 	bool result = SDL_SetGamepadSensorEnabled(get_sdl_gamepad(p_pad_idx), SDL_SENSOR_ACCEL, p_enable);
